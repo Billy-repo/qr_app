@@ -31,6 +31,8 @@
             padding: 20px;
             position: relative;
             overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
         }
 
         body::before {
@@ -55,6 +57,7 @@
             margin: 0 auto;
             position: relative;
             z-index: 1;
+            width: 100%;
         }
 
         .header {
@@ -96,6 +99,8 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             animation: slideUp 0.6s ease;
+            width: 100%;
+            max-width: 100%;
         }
 
         @keyframes slideUp {
@@ -131,16 +136,37 @@
         }
 
         @media (max-width: 968px) {
+            body {
+                padding: 10px;
+            }
+
             .section-divider {
                 display: none;
             }
             
             .section {
-                padding: 2rem 1.5rem;
+                padding: 1.5rem 1rem;
             }
             
             .input-section {
                 border-bottom: 1px solid var(--border);
+            }
+
+            .qr-display {
+                padding: 1rem;
+                min-height: 300px;
+            }
+
+            #qrcode {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
             }
         }
 
@@ -383,6 +409,9 @@
             padding: 2rem;
             position: relative;
             margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         #qrcode {
@@ -391,6 +420,17 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             position: relative;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qrcode canvas,
+        #qrcode img {
+            max-width: 100% !important;
+            height: auto !important;
+            display: block;
         }
 
         .placeholder {
@@ -504,8 +544,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>QR Code Generator | QR Codes for ALL</h1>
-            <p>Create professional QR codes for any purpose - FREE</p>
+            <h1>QR Code Generator</h1>
+            <p>Create professional QR codes for any purpose</p>
         </div>
         
         <div class="card">
@@ -730,10 +770,12 @@
             document.getElementById('qrcode').innerHTML = '';
             document.getElementById('placeholder').classList.add('hidden');
             
+            const qrSize = window.innerWidth < 768 ? 250 : 280;
+            
             qrCode = new QRCode(document.getElementById('qrcode'), {
                 text: data,
-                width: 280,
-                height: 280,
+                width: qrSize,
+                height: qrSize,
                 colorDark: '#000000',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M
