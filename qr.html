@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-section, .output-section {
+            padding: 20px;
+        }
+
+        .input-section {
+            border-right: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .type-btn {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+
+        .type-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .type-btn .icon {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .generate-btn, .download-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-top: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .download-btn.active {
+            display: block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+
+        #qrcode {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .placeholder {
+            color: #a0aec0;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .icon-overlay {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <p class="subtitle">Create professional QR codes for Email, SMS, Call, or Links</p>
+        
+        <div class="content">
+            <div class="input-section">
+                <h2 class="section-title">Select Type & Enter Details</h2>
+                
+                <div class="type-selector">
+                    <button class="type-btn active" data-type="link">
+                        <span class="icon">🔗</span>
+                        Link/URL
+                    </button>
+                    <button class="type-btn" data-type="email">
+                        <span class="icon">📧</span>
+                        Email
+                    </button>
+                    <button class="type-btn" data-type="sms">
+                        <span class="icon">💬</span>
+                        SMS
+                    </button>
+                    <button class="type-btn" data-type="call">
+                        <span class="icon">📞</span>
+                        Phone Call
+                    </button>
+                </div>
+                
+                <div id="inputFields">
+                    <!-- Dynamic input fields will be inserted here -->
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="addIcon" checked>
+                    <label for="addIcon">Add icon to center of QR code</label>
+                </div>
+                
+                <button class="generate-btn" onclick="generateQR()">Generate QR Code</button>
+            </div>
+            
+            <div class="output-section">
+                <h2 class="section-title">Generated QR Code</h2>
+                
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                    <div id="iconOverlay" class="icon-overlay hidden"></div>
+                    <p class="placeholder" id="placeholder">Your QR code will appear here</p>
+                </div>
+                
+                <div class="download-section" id="downloadSection" style="display: none;">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block;">Download Size:</label>
+                    <div class="download-options">
+                        <button class="size-btn" onclick="setDownloadSize(256)">Small (256px)</button>
+                        <button class="size-btn active" onclick="setDownloadSize(512)">Medium (512px)</button>
+                        <button class="size-btn" onclick="setDownloadSize(1024)">Large (1024px)</button>
+                        <button class="size-btn" onclick="setDownloadSize(2048)">HD (2048px)</button>
+                    </div>
+                    <button class="download-btn active" onclick="downloadQR()">
+                        <span style="margin-right: 8px;">⬇️</span>Download QR Code
+                    </button>
+                    <button class="copy-btn active" onclick="copyQR()">
+                        <span style="margin-right: 8px;">📋</span>Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'link';
+        let qrCode = null;
+        let downloadSize = 512;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateInputFields('link');
+            
+            // Add event listeners to type buttons
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentType = btn.dataset.type;
+                    updateInputFields(currentType);
+                });
+            });
+        });
+
+        function setDownloadSize(size) {
+            downloadSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(size)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function updateInputFields(type) {
+            const container = document.getElementById('inputFields');
+            container.innerHTML = '';
+            container.classList.add('fade-in');
+            
+            switch(type) {
+                case 'link':
+                    container.innerHTML = `
+                        <div class="input-group">
+                            <label for="url">Enter URL:</label>
+                            <input type="url" id="url" placeholder="https://example.com">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'email':
+                    container.innerHTML = `
+                        <div class="input-group">
+                            <label for="email">Email Address:</label>
+                            <input type="email" id="email" placeholder="user@example.com">
+                        </div>
+                        <div class="input-group">
+                            <label for="subject">Subject (optional):</label>
+                            <input type="text" id="subject" placeholder="Email subject">
+                        </div>
+                        <div class="input-group">
+                            <label for="body">Message (optional):</label>
+                            <textarea id="body" placeholder="Email message"></textarea>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'sms':
+                    container.innerHTML = `
+                        <div class="input-group">
+                            <label for="phone">Phone Number:</label>
+                            <input type="tel" id="phone" placeholder="+1234567890">
+                        </div>
+                        <div class="input-group">
+                            <label for="message">Message (optional):</label>
+                            <textarea id="message" placeholder="SMS message"></textarea>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'call':
+                    container.innerHTML = `
+                        <div class="input-group">
+                            <label for="callPhone">Phone Number:</label>
+                            <input type="tel" id="callPhone" placeholder="+1234567890">
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function generateQR() {
+            let data = '';
+            
+            // Get data based on type
+            switch(currentType) {
+                case 'link':
+                    const url = document.getElementById('url').value.trim();
+                    if (!url) {
+                        alert('Please enter a URL');
+                        return;
+                    }
+                    data = url.startsWith('http') ? url : 'https://' + url;
+                    break;
+                    
+                case 'email':
+                    const email = document.getElementById('email').value.trim();
+                    if (!email) {
+                        alert('Please enter an email address');
+                        return;
+                    }
+                    const subject = document.getElementById('subject').value.trim();
+                    const body = document.getElementById('body').value.trim();
+                    
+                    data = `mailto:${email}`;
+                    const params = [];
+                    if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
+                    if (body) params.push(`body=${encodeURIComponent(body)}`);
+                    if (params.length > 0) data += '?' + params.join('&');
+                    break;
+                    
+                case 'sms':
+                    const phone = document.getElementById('phone').value.trim();
+                    if (!phone) {
+                        alert('Please enter a phone number');
+                        return;
+                    }
+                    const message = document.getElementById('message').value.trim();
+                    data = `sms:${phone}`;
+                    if (message) data += `?body=${encodeURIComponent(message)}`;
+                    break;
+                    
+                case 'call':
+                    const callPhone = document.getElementById('callPhone').value.trim();
+                    if (!callPhone) {
+                        alert('Please enter a phone number');
+                        return;
+                    }
+                    data = `tel:${callPhone}`;
+                    break;
+            }
+            
+            // Clear previous QR code
+            document.getElementById('qrcode').innerHTML = '';
+            document.getElementById('placeholder').style.display = 'none';
+            
+            // Generate new QR code with cleaner appearance
+            qrCode = new QRCode(document.getElementById('qrcode'), {
+                text: data,
+                width: 300,  // Larger size for better readability
+                height: 300,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M,  // Medium error correction for cleaner look
+                quietZone: 15,  // Add padding around QR code
+                quietZoneColor: 'transparent'
+            });
+            
+            // Show/hide icon
+            const iconOverlay = document.getElementById('iconOverlay');
+            if (document.getElementById('addIcon').checked) {
+                iconOverlay.classList.remove('hidden');
+                const icons = {
+                    'link': '🔗',
+                    'email': '📧',
+                    'sms': '💬',
+                    'call': '📞'
+                };
+                iconOverlay.innerHTML = icons[currentType];
+            } else {
+                iconOverlay.classList.add('hidden');
+            }
+            
+            // Show download section
+            document.getElementById('downloadSection').style.display = 'block';
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
+            
+            // Create a new canvas with desired size
+            const downloadCanvas = document.createElement('canvas');
+            const ctx = downloadCanvas.getContext('2d');
+            downloadCanvas.width = downloadSize;
+            downloadCanvas.height = downloadSize;
+            
+            // Scale and draw QR code
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(canvas, 0, 0, downloadSize, downloadSize);
+            
+            // Add icon if enabled with better proportions
+            if (document.getElementById('addIcon').checked) {
+                const centerX = downloadSize / 2;
+                const centerY = downloadSize / 2;
+                const iconSize = downloadSize / 6;  // Smaller icon for cleaner look
+                
+                // Draw white circle background with more padding
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = downloadSize/100;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, iconSize / 2 + downloadSize/40, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Draw colored circle based on type
+                const colors = {
+                    'link': '#007BFF',
+                    'email': '#FF5722',
+                    'sms': '#4CAF50',
+                    'call': '#9C27B0'
+                };
+                ctx.fillStyle = colors[currentType];
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, iconSize / 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw icon text
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${iconSize/3}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const icons = {
+                    'link': '🔗',
+                    'email': '✉',
+                    'sms': '💬',
+                    'call': '☎'
+                };
+                ctx.fillText(icons[currentType], centerX, centerY);
+            }
+            
+            // Download
+            downloadCanvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `qr-code-${currentType}-${downloadSize}px-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function copyQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
+            
+            canvas.toBlob((blob) => {
+                const item = new ClipboardItem({ 'image/png': blob });
+                navigator.clipboard.write([item]).then(() => {
+                    // Show success feedback
+                    const btn = event.target.closest('button');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<span style="margin-right: 8px;">✅</span>Copied!';
+                    btn.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = 'linear-gradient(135deg, #4299e1, #3182ce)';
+                    }, 2000);
+                }).catch(err => {
+                    alert('Failed to copy to clipboard. Please use the download button instead.');
+                });
+            });
+        }
+
+        // Update icon when checkbox changes
+        document.getElementById('addIcon').addEventListener('change', (e) => {
+            const iconOverlay = document.getElementById('iconOverlay');
+            if (qrCode) {
+                if (e.target.checked) {
+                    iconOverlay.classList.remove('hidden');
+                    const icons = {
+                        'link': '🔗',
+                        'email': '📧',
+                        'sms': '💬',
+                        'call': '📞'
+                    };
+                    iconOverlay.innerHTML = icons[currentType];
+                } else {
+                    iconOverlay.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
