@@ -931,10 +931,22 @@
                     break;
             }
         }
+        async function shortenURL(longUrl) {
+            try {
+                const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+                const shortUrl = await res.text();
+                if (shortUrl.startsWith("http")) {
+                    return shortUrl;
+                }
+                return longUrl; // fallback if API fails
+            } catch {
+                return longUrl; // fallback
+            }
+        }
 
-        function generateQR() {
+        async function generateQR() {
             let data = '';
-            
+        
             switch(currentType) {
                 case 'link':
                     const url = document.getElementById('url').value.trim();
@@ -942,9 +954,16 @@
                         alert('Please enter a URL');
                         return;
                     }
-                    data = url.startsWith('http') ? url : 'https://' + url;
+        
+                    // ensure https://
+                    let fullUrl = url.startsWith('http') ? url : 'https://' + url;
+        
+                    // ---- 🔥 SHORTEN THE URL HERE ----
+                    fullUrl = await shortenURL(fullUrl);
+        
+                    data = fullUrl;
                     break;
-                    
+        
                 case 'email':
                     const email = document.getElementById('email').value.trim();
                     if (!email) {
@@ -953,14 +972,13 @@
                     }
                     const subject = document.getElementById('subject').value.trim();
                     const body = document.getElementById('body').value.trim();
-                    
                     data = `mailto:${email}`;
                     const params = [];
                     if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
                     if (body) params.push(`body=${encodeURIComponent(body)}`);
                     if (params.length > 0) data += '?' + params.join('&');
                     break;
-                    
+        
                 case 'sms':
                     const phone = document.getElementById('phone').value.trim();
                     if (!phone) {
@@ -971,7 +989,7 @@
                     data = `sms:${phone}`;
                     if (message) data += `?body=${encodeURIComponent(message)}`;
                     break;
-                    
+        
                 case 'call':
                     const callPhone = document.getElementById('callPhone').value.trim();
                     if (!callPhone) {
@@ -981,12 +999,12 @@
                     data = `tel:${callPhone}`;
                     break;
             }
-            
+        
             document.getElementById('qrcode').innerHTML = '';
             document.getElementById('placeholder').classList.add('hidden');
-            
+        
             const qrSize = window.innerWidth < 768 ? 250 : 280;
-            
+        
             qrCode = new QRCode(document.getElementById('qrcode'), {
                 text: data,
                 width: qrSize,
@@ -995,13 +1013,14 @@
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
             });
-            
+        
             setTimeout(() => {
                 updateOverlay();
             }, 100);
-            
+        
             document.getElementById('downloadSection').classList.remove('hidden');
         }
+
 
         function updateOverlay() {
             const iconOverlay = document.getElementById('iconOverlay');
